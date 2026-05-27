@@ -79,12 +79,12 @@ const Contact = () => {
             <div className="contact-details">
               <div className="contact-detail-item">
                 <span className="detail-label font-title">FREQUENCY:</span>
-                <a href="mailto:abhinav@example.com" className="detail-value">abhinav.pandey@example.com</a>
+                <a href="mailto:abhinav@example.com" className="detail-value">abhinavpandey091@gmail.com</a>
               </div>
-              <div className="contact-detail-item">
+              {/* <div className="contact-detail-item">
                 <span className="detail-label font-title">HQ LOCATION:</span>
                 <span className="detail-value">New Delhi, India</span>
-              </div>
+              </div> */}
             </div>
 
             {/* Social Connects */}
