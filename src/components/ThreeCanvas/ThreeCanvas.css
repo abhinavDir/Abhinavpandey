@@ -1,0 +1,98 @@
+.three-background-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, #0d0c15 0%, var(--bg-color) 80%);
+  overflow: hidden;
+  transition: background var(--transition-speed-normal) var(--transition-smooth);
+}
+
+[data-theme="light"] .three-background-canvas {
+  background: radial-gradient(circle at 50% 50%, #f4f3fb 0%, var(--bg-color) 90%);
+}
+
+/* Generative Fluid Mesh Gradient Backdrop Blobs */
+.bg-glow-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  -webkit-filter: blur(140px);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.12;
+  transition: opacity var(--transition-speed-slow) var(--transition-smooth), 
+              background var(--transition-speed-slow) var(--transition-smooth);
+  will-change: transform;
+}
+
+.blob-1 {
+  top: -10%;
+  left: -10%;
+  width: 550px;
+  height: 550px;
+  background: var(--primary-color);
+  animation: float-blob-1 18s infinite ease-in-out;
+}
+
+.blob-2 {
+  bottom: -15%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: var(--secondary-color);
+  animation: float-blob-2 22s infinite ease-in-out;
+}
+
+.blob-3 {
+  top: 40%;
+  left: 30%;
+  width: 450px;
+  height: 450px;
+  background: var(--accent-color);
+  animation: float-blob-3 20s infinite ease-in-out;
+}
+
+/* Light Theme overrides for soft high-end pastels */
+[data-theme="light"] .bg-glow-blob {
+  opacity: 0.07;
+  filter: blur(160px);
+  -webkit-filter: blur(160px);
+}
+
+/* Independent, non-repeating float trajectories */
+@keyframes float-blob-1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(12%, 18%) scale(1.15);
+  }
+  66% {
+    transform: translate(-8%, 10%) scale(0.9);
+  }
+}
+
+@keyframes float-blob-2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-15%, -12%) scale(1.1);
+  }
+}
+
+@keyframes float-blob-3 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  40% {
+    transform: translate(18%, -15%) scale(0.85);
+  }
+  75% {
+    transform: translate(-10%, 12%) scale(1.15);
+  }
+}

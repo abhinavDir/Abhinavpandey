@@ -1,0 +1,69 @@
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10000;
+  border-radius: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  transition: opacity 0.3s ease, width 0.3s ease, height 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  will-change: transform;
+}
+
+.cursor-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--secondary-color);
+  box-shadow: 0 0 10px var(--secondary-color);
+}
+
+.cursor-ring {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid rgba(0, 242, 254, 0.4);
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.15);
+}
+
+/* Hidden States */
+.cursor-dot.hidden,
+.cursor-ring.hidden {
+  opacity: 0;
+}
+
+/* Click Active States */
+.cursor-dot.active {
+  transform: scale(1.5) translate3d(-50%, -50%, 0);
+  background-color: var(--accent-color);
+  box-shadow: 0 0 15px var(--accent-color);
+}
+
+.cursor-ring.active {
+  width: 30px;
+  height: 30px;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 20px rgba(255, 0, 127, 0.4);
+}
+
+/* Hover Interactive States */
+.cursor-dot.hover {
+  transform: scale(0) translate3d(-50%, -50%, 0);
+  opacity: 0;
+}
+
+.cursor-ring.hover {
+  width: 70px;
+  height: 70px;
+  border-color: var(--accent-color);
+  background-color: rgba(255, 0, 127, 0.05);
+  box-shadow: 0 0 25px rgba(255, 0, 127, 0.3), inset 0 0 15px rgba(255, 0, 127, 0.1);
+  animation: morph 6s linear infinite;
+}
+
+/* Disable Custom Cursor on Touch Devices */
+@media (pointer: coarse) {
+  .cursor-dot,
+  .cursor-ring {
+    display: none !important;
+  }
+}

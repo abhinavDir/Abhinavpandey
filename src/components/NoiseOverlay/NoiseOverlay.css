@@ -1,0 +1,20 @@
+.noise-overlay {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  width: 200%;
+  height: 200%;
+  background: transparent url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E') repeat;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 9999;
+  animation: grain-anim 10s steps(10) infinite;
+}
+
+@media (max-width: 768px) {
+  .noise-overlay {
+    opacity: 0.03; /* Slightly softer noise on mobile for display clarity */
+  }
+}
