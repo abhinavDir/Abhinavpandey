@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiArrowDown } from 'react-icons/hi';
 import { FaReact, FaNodeJs, FaHtml5, FaGitAlt } from 'react-icons/fa';
@@ -19,32 +19,226 @@ const marqueeItems = [
   'FULL-STACK DEVELOPER', 'n8n AUTOMATION EXPERT', 'CREATIVE ENGINEERING', 'THREE.JS / WEBGL', 'API INTEGRATIONS', 'UI/UX ARCHITECTURE', 'CLEAN CODE'
 ];
 
+const techCards = [
+  { name: 'React.js', icon: FaReact, color: '#61dafb', category: 'Frontend', id: '01' },
+  { name: 'Node.js', icon: FaNodeJs, color: '#68a063', category: 'Backend', id: '02' },
+  { name: 'JavaScript', icon: SiJavascript, color: '#f7df1e', category: 'Language', id: '03' },
+  { name: 'Three.js', icon: SiThreedotjs, color: '#00f2fe', category: '3D/WebGL', id: '04' },
+  { name: 'MongoDB', icon: SiMongodb, color: '#47a248', category: 'Database', id: '05' },
+  { name: 'Redux', icon: SiRedux, color: '#764abc', category: 'State', id: '06' },
+];
+
+const getRandomShuffle = (currentStack) => {
+  const currentTop = currentStack[0];
+  let newStack = [...currentStack];
+  do {
+    // Fisher-Yates shuffle
+    for (let i = newStack.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = newStack[i];
+      newStack[i] = newStack[j];
+      newStack[j] = temp;
+    }
+  } while (newStack[0] === currentTop); // Make sure the top card always changes
+  return newStack;
+};
+
+const cardVariants = {
+  active: {
+    x: 0,
+    y: 0,
+    scale: 1,
+    rotate: 0,
+    opacity: 1,
+    zIndex: 10,
+    transition: {
+      type: 'spring',
+      stiffness: 110, // Slower, smoother floating spring
+      damping: 19,
+    }
+  },
+  stack1: {
+    x: 0,
+    y: 24, // Proportionate stack offset for larger card size
+    scale: 0.94,
+    rotate: -3,
+    opacity: 0.85,
+    zIndex: 9,
+    transition: {
+      type: 'spring',
+      stiffness: 110,
+      damping: 19,
+    }
+  },
+  stack2: {
+    x: 0,
+    y: 48,
+    scale: 0.88,
+    rotate: 3,
+    opacity: 0.7,
+    zIndex: 8,
+    transition: {
+      type: 'spring',
+      stiffness: 110,
+      damping: 19,
+    }
+  },
+  hidden: {
+    x: 0,
+    y: 72,
+    scale: 0.82,
+    rotate: 0,
+    opacity: 0,
+    zIndex: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 110,
+      damping: 19,
+    }
+  },
+  exiting: {
+    x: [0, 340, 0], // Extended slide distance to clear 400px width card
+    y: [0, -20, 72],
+    scale: [1, 0.94, 0.82],
+    rotate: [0, 14, 0],
+    opacity: [1, 0.4, 0],
+    zIndex: [12, 12, 1],
+    transition: {
+      duration: 1.35, // Slowed down from 0.75s for high-end realistic shuffle speed
+      times: [0, 0.45, 1],
+      ease: [0.25, 1, 0.5, 1],
+    }
+  },
+  entering: {
+    x: [-340, 0], // Extended slide distance
+    y: [20, 0],
+    scale: [0.82, 1],
+    rotate: [-14, 0],
+    opacity: [0, 1],
+    zIndex: 10,
+    transition: {
+      duration: 1.35, // Slower crossover slide
+      times: [0, 1],
+      ease: [0.25, 1, 0.5, 1],
+    }
+  }
+};
+
 const Hero = () => {
   const [index, setIndex] = useState(0);
-  const [cubeRotation, setCubeRotation] = useState({ x: -15, y: 30 });
+  const [stack, setStack] = useState([0, 1, 2, 3, 4, 5]);
+  const [exitingCardId, setExitingCardId] = useState(null);
+  const [enteringCardId, setEnteringCardId] = useState(null);
+  const heroRef = useRef(null);
+  const deckRef = useRef(null);
+  const stackRef = useRef(stack);
+
+  // Track mouse coordinates dynamically in a ref to avoid React state triggers
+  const mouseOffsetRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
 
   useEffect(() => {
+    stackRef.current = stack;
+  }, [stack]);
+
+  useEffect(() => {
+    // 1. Slider timer
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % professions.length);
     }, 3000);
-    return () => clearInterval(timer);
+
+    // 2. Card shuffle interval variable
+    let shuffleInterval = null;
+    let isIntersecting = true;
+
+    // 3. Animation frame parameters
+    let animationFrameId = null;
+
+    // 4. Intersection Observer to sleep animation loop and shuffle interval when Hero section is out of viewport (0% CPU idle)
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isIntersecting = entry.isIntersecting;
+        if (isIntersecting) {
+          cancelAnimationFrame(animationFrameId);
+          animate();
+
+          // Initialize shuffle interval only when intersecting
+          if (!shuffleInterval) {
+            shuffleInterval = setInterval(() => {
+              const currentTop = stackRef.current[0];
+              const nextStack = getRandomShuffle(stackRef.current);
+              const nextTop = nextStack[0];
+
+              // Phase 1: Slide out the current top card
+              setExitingCardId(currentTop);
+
+              // Phase 2: After 350ms, update stack order and trigger slide in of new top card
+              setTimeout(() => {
+                setEnteringCardId(nextTop);
+                setStack(nextStack);
+              }, 350);
+
+              // Phase 3: After 1750ms (350ms delay + 1350ms duration + 50ms buffer), reset tracking states
+              setTimeout(() => {
+                setExitingCardId(null);
+                setEnteringCardId(null);
+              }, 1750);
+            }, 4500); // Shuffles every 4.5 seconds for a slower, more readable and realistic pace
+          }
+        } else {
+          cancelAnimationFrame(animationFrameId);
+          if (shuffleInterval) {
+            clearInterval(shuffleInterval);
+            shuffleInterval = null;
+          }
+        }
+      },
+      { threshold: 0.05 }
+    );
+
+    if (heroRef.current) {
+      observer.observe(heroRef.current);
+    }
+
+    const animate = () => {
+      if (!isIntersecting) return;
+
+      // Lerp mouse offsets for smooth trailing follow physics
+      const offsets = mouseOffsetRef.current;
+      offsets.x += (offsets.targetX - offsets.x) * 0.08;
+      offsets.y += (offsets.targetY - offsets.y) * 0.08;
+
+      if (deckRef.current) {
+        // Apply smooth 3D tilt to the entire deck container (maximum tilt range 20deg)
+        deckRef.current.style.transform = `perspective(1000px) rotateX(${offsets.x}deg) rotateY(${offsets.y}deg)`;
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    return () => {
+      clearInterval(timer);
+      if (shuffleInterval) clearInterval(shuffleInterval);
+      cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
+    };
   }, []);
 
-  // Sync cursor movements to rotate the 3D tech cube
+  // Sync cursor movements to rotate the 3D tech deck
   const handleMouseMove = (e) => {
+    if (!deckRef.current) return;
     const { clientX, clientY } = e;
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    // Rotate cube within soft boundaries to reveal different faces
-    const targetX = (clientY / h - 0.5) * -50 - 15;
-    const targetY = (clientX / w - 0.5) * 90 + 30;
-
-    setCubeRotation({ x: targetX, y: targetY });
+    // Set mouse targets (adds up to 20deg range dynamically)
+    mouseOffsetRef.current.targetX = (clientY / h - 0.5) * -20;
+    mouseOffsetRef.current.targetY = (clientX / w - 0.5) * 20;
   };
 
   const handleMouseLeave = () => {
-    setCubeRotation({ x: -15, y: 30 }); // reset to default premium perspective angle
+    // Smoothly restore offset back to 0 when cursor exits the hero section
+    mouseOffsetRef.current.targetX = 0;
+    mouseOffsetRef.current.targetY = 0;
   };
 
   // Split-text animation configurations
@@ -85,7 +279,7 @@ const Hero = () => {
   };
 
   return (
-    <section id="home" className="hero-section" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+    <section ref={heroRef} id="home" className="hero-section" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
       {/* SVG Animated Mesh Lines in background */}
       <div className="hero-svg-bg" aria-hidden="true">
         <svg viewBox="0 0 1440 800" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -165,7 +359,7 @@ const Hero = () => {
             className="hero-subtitle"
           >
             Architecting state-of-the-art full-stack applications with modular cleanliness,
-            immersive 3D graphics, and fluid performance to craft remarkable web spaces.
+            immersive and fluid performance to craft remarkable web spaces.
           </motion.p>
 
           {/* CTA Buttons with Magnetic effects */}
@@ -189,66 +383,76 @@ const Hero = () => {
           </motion.div>
         </div>
 
-        {/* Right Column: Dynamic 3D Tech Cube Block */}
+        {/* Right Column: Dynamic 3D Tech Card Shuffling Deck */}
         <div className="hero-cube-block">
-          <div className="cube-viewport">
+          <div className="deck-viewport">
             <div
-              className="cube-box"
-              style={{
-                transform: `rotateX(${cubeRotation.x}deg) rotateY(${cubeRotation.y}deg)`,
-              }}
+              ref={deckRef}
+              className="deck-box"
+              style={{ willChange: 'transform' }}
             >
-              {/* Face 1: React (Front) */}
-              <div className="cube-face face-front">
-                <div className="face-content" style={{ '--face-glow': '#61dafb' }}>
-                  <FaReact className="face-icon" style={{ color: '#61dafb' }} />
-                  <span className="face-title font-title">React.js</span>
-                </div>
-              </div>
+              {techCards.map((card, idx) => {
+                const position = stack.indexOf(idx);
+                const isExiting = exitingCardId === idx;
+                const isEntering = enteringCardId === idx;
 
-              {/* Face 2: Node.js (Back) */}
-              <div className="cube-face face-back">
-                <div className="face-content" style={{ '--face-glow': '#68a063' }}>
-                  <FaNodeJs className="face-icon" style={{ color: '#68a063' }} />
-                  <span className="face-title font-title">Node.js</span>
-                </div>
-              </div>
+                let variantName = 'hidden';
+                if (isExiting) {
+                  variantName = 'exiting';
+                } else if (isEntering) {
+                  variantName = 'entering';
+                } else if (position === 0) {
+                  variantName = 'active';
+                } else if (position === 1) {
+                  variantName = 'stack1';
+                } else if (position === 2) {
+                  variantName = 'stack2';
+                }
 
-              {/* Face 3: JavaScript (Top) */}
-              <div className="cube-face face-top">
-                <div className="face-content" style={{ '--face-glow': '#f7df1e' }}>
-                  <SiJavascript className="face-icon" style={{ color: '#f7df1e' }} />
-                  <span className="face-title font-title">JavaScript</span>
-                </div>
-              </div>
+                const IconComponent = card.icon;
 
-              {/* Face 4: Three.js (Bottom) */}
-              <div className="cube-face face-bottom">
-                <div className="face-content" style={{ '--face-glow': '#00f2fe' }}>
-                  <SiThreedotjs className="face-icon" style={{ color: '#00f2fe' }} />
-                  <span className="face-title font-title">Three.js</span>
-                </div>
-              </div>
+                return (
+                  <motion.div
+                    key={card.name}
+                    variants={cardVariants}
+                    animate={variantName}
+                    initial="hidden"
+                    className="tech-card"
+                    style={{
+                      '--card-glow': card.color,
+                    }}
+                  >
+                    {/* Matrix grid/dots backdrop */}
+                    <div className="card-dots-bg" />
 
-              {/* Face 5: MongoDB (Left) */}
-              <div className="cube-face face-left">
-                <div className="face-content" style={{ '--face-glow': '#47a248' }}>
-                  <SiMongodb className="face-icon" style={{ color: '#47a248' }} />
-                  <span className="face-title font-title">MongoDB</span>
-                </div>
-              </div>
+                    {/* Corner terminal crosshairs */}
+                    <div className="card-corner corner-tl" />
+                    <div className="card-corner corner-tr" />
+                    <div className="card-corner corner-bl" />
+                    <div className="card-corner corner-br" />
 
-              {/* Face 6: Redux/GSAP (Right) */}
-              <div className="cube-face face-right">
-                <div className="face-content" style={{ '--face-glow': '#764abc' }}>
-                  <SiRedux className="face-icon" style={{ color: '#764abc' }} />
-                  <span className="face-title font-title">Redux</span>
-                </div>
-              </div>
+                    {/* Reflective gloss glare overlay */}
+                    <div className="card-glare" />
+
+                    <div className="card-hud-header font-title">
+                      <span className="hud-category">{card.category}</span>
+                      <span className="hud-id">{card.id} / 06</span>
+                    </div>
+                    <div className="card-content">
+                      <IconComponent className="card-icon" style={{ color: card.color }} />
+                      <span className="card-title font-title">{card.name}</span>
+                    </div>
+                    <div className="card-hud-footer font-title">
+                      <span className="hud-status">// ACTIVE NODE</span>
+                      <span className="hud-sig">SYS.OK_</span>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
           {/* Ambient floor shadow */}
-          <div className="cube-shadow" />
+          <div className="deck-shadow" />
         </div>
       </div>
 

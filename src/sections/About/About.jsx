@@ -11,42 +11,54 @@ const Counter = ({ value, duration = 2, suffix = "" }) => {
   const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
+    const currentEl = elementRef.current;
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-
         if (entry.isIntersecting && !hasAnimated) {
           setHasAnimated(true);
-
-          let start = 0;
-          const end = parseInt(value, 10);
-
-          let totalMiliseconds = duration * 1000;
-          let incrementTime = Math.abs(
-            Math.floor(totalMiliseconds / end)
-          );
-
-          let timer = setInterval(() => {
-            start += 1;
-            setCount(start);
-
-            if (start === end) clearInterval(timer);
-          }, incrementTime);
         }
       },
       { threshold: 0.5 }
     );
 
-    if (elementRef.current) {
-      observer.observe(elementRef.current);
+    if (currentEl) {
+      observer.observe(currentEl);
     }
 
     return () => {
-      if (elementRef.current) {
-        observer.unobserve(elementRef.current);
+      if (currentEl) {
+        observer.unobserve(currentEl);
       }
     };
-  }, [value, duration, hasAnimated]);
+  }, [hasAnimated]);
+
+  useEffect(() => {
+    if (!hasAnimated) return;
+
+    let start = 0;
+    const end = parseInt(value, 10);
+    if (isNaN(end) || end <= 0) {
+      setCount(value);
+      return;
+    }
+
+    const totalMilliseconds = duration * 1000;
+    const incrementTime = Math.max(Math.floor(totalMilliseconds / end), 16); // minimum 16ms to avoid blocking frame budget
+
+    const timer = setInterval(() => {
+      start += 1;
+      setCount(start);
+
+      if (start >= end) {
+        clearInterval(timer);
+      }
+    }, incrementTime);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [hasAnimated, value, duration]);
 
   return (
     <span ref={elementRef}>
@@ -59,10 +71,7 @@ const Counter = ({ value, duration = 2, suffix = "" }) => {
 const About = () => {
   const cardRef = useRef(null);
 
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
-
-  // 3D Tilt Card Interaction
+  // 3D Tilt Card Interaction via direct DOM styling to prevent React re-renders
   const handleMouseMove = (e) => {
     if (!cardRef.current) return;
 
@@ -80,13 +89,14 @@ const About = () => {
     const degX = (mouseY / (height / 2)) * -10;
     const degY = (mouseX / (width / 2)) * 10;
 
-    setRotateX(degX);
-    setRotateY(degY);
+    card.style.transform = `perspective(1000px) rotateX(${degX}deg) rotateY(${degY}deg)`;
+    card.style.transition = 'none';
   };
 
   const handleMouseLeave = () => {
-    setRotateX(0);
-    setRotateY(0);
+    if (!cardRef.current) return;
+    cardRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+    cardRef.current.style.transition = 'transform 0.5s ease';
   };
 
   const bioVariants = {
@@ -172,8 +182,7 @@ const About = () => {
               </span>
               , a passionate MERN Stack Developer
               and Computer Science Engineering
-              student specializing in Artificial
-              Intelligence. I focus on building
+              student. I focus on building
               immersive, scalable, and visually
               modern web applications with smooth
               user experiences and premium frontend
@@ -242,12 +251,8 @@ const About = () => {
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
               style={{
-                transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
-
-                transition:
-                  rotateX === 0 && rotateY === 0
-                    ? 'transform 0.5s ease'
-                    : 'none',
+                transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
+                transition: 'transform 0.5s ease',
               }}
             >
               <div className="tilt-card glass-panel">

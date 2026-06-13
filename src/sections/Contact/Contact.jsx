@@ -7,6 +7,8 @@ import './Contact.css';
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [focusedField, setFocusedField] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,12 +24,44 @@ const Contact = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real application, submit logic goes here
-    alert(`Thank you, ${formData.name}! Your message was successfully drafted in this demo.`);
-    setFormData({ name: '', email: '', subject: '', message: '' });
-    setFocusedField(null);
+    setIsSubmitting(true);
+    setSubmitSuccess(null);
+
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/abhinavpandey091@gmail.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message
+        })
+      });
+
+      if (response.ok) {
+        setSubmitSuccess(true);
+        setFormData({ name: '', email: '', subject: '', message: '' });
+        setFocusedField(null);
+      } else {
+        setSubmitSuccess(false);
+      }
+    } catch (error) {
+      console.error(error);
+      setSubmitSuccess(false);
+    } finally {
+      setIsSubmitting(false);
+
+      // Auto-reset message alerts after 5 seconds
+      setTimeout(() => {
+        setSubmitSuccess(null);
+      }, 5000);
+    }
   };
 
   const containerVariants = {
@@ -79,7 +113,7 @@ const Contact = () => {
             <div className="contact-details">
               <div className="contact-detail-item">
                 <span className="detail-label font-title">FREQUENCY:</span>
-                <a href="mailto:abhinav@example.com" className="detail-value">abhinavpandey091@gmail.com</a>
+                <a href="mailto:abhinav@example.com" className="detail-value">abhinav.pandey@example.com</a>
               </div>
               {/* <div className="contact-detail-item">
                 <span className="detail-label font-title">HQ LOCATION:</span>
@@ -92,17 +126,17 @@ const Contact = () => {
               <h4 className="socials-title font-title">CONNECT VIA SECURE PORTS:</h4>
               <div className="contact-social-icons">
                 <Magnetic strength={0.35}>
-                  <a href="#" className="social-icon-btn github" aria-label="GitHub Port" target="_blank" rel="noopener noreferrer">
+                  <a href="https://github.com/abhinavDir" className="social-icon-btn github" aria-label="GitHub Port" target="_blank" rel="noopener noreferrer">
                     <FaGithub />
                   </a>
                 </Magnetic>
                 <Magnetic strength={0.35}>
-                  <a href="#" className="social-icon-btn linkedin" aria-label="LinkedIn Port" target="_blank" rel="noopener noreferrer">
+                  <a href="https://www.linkedin.com/in/abhinav-pandey-830128334/" className="social-icon-btn linkedin" aria-label="LinkedIn Port" target="_blank" rel="noopener noreferrer">
                     <FaLinkedin />
                   </a>
                 </Magnetic>
                 <Magnetic strength={0.35}>
-                  <a href="mailto:abhinav@example.com" className="social-icon-btn email" aria-label="Email Port">
+                  <a href="mailto:abhinavpandey091@gmail.com" className="social-icon-btn email" aria-label="Email Port">
                     <FaEnvelope />
                   </a>
                 </Magnetic>
@@ -189,19 +223,32 @@ const Contact = () => {
               {/* Submit Button with Liquid Shift effect */}
               <div className="form-submit-container">
                 <Magnetic strength={0.25}>
-                  <button type="submit" className="btn-primary liquid-btn">
-                    <span className="btn-text">INJECT HANDSHAKE</span>
+                  <button type="submit" className="btn-primary liquid-btn" disabled={isSubmitting}>
+                    <span className="btn-text">
+                      {isSubmitting ? "INJECTING HANDSHAKE..." : submitSuccess ? "HANDSHAKE SECURED!" : submitSuccess === false ? "HANDSHAKE FAILED" : "INJECT HANDSHAKE"}
+                    </span>
                     <div className="liquid-glow-overlay" />
                   </button>
                 </Magnetic>
               </div>
+
+              {submitSuccess && (
+                <p className="submit-success-msg" style={{ color: 'var(--secondary-color)', marginTop: '16px', fontSize: '0.82rem', textAlign: 'center', fontFamily: 'var(--font-title)', letterSpacing: '0.05em' }}>
+                  ✓ SECURE LINK ESTABLISHED. HANDSHAKE INJECTED.
+                </p>
+              )}
+              {submitSuccess === false && (
+                <p className="submit-error-msg" style={{ color: '#ef4444', marginTop: '16px', fontSize: '0.82rem', textAlign: 'center', fontFamily: 'var(--font-title)', letterSpacing: '0.05em' }}>
+                  ✗ CONNECTION ERROR. PORT HANDSHAKE REFUSED.
+                </p>
+              )}
             </form>
           </motion.div>
         </motion.div>
 
         {/* Footer */}
         <div className="footer-credits">
-          <p>© 2026 Abhinav Pandey. Crafted with high performance.</p>
+          <p>© {new Date().getFullYear()} Abhinav Pandey. Crafted with high performance.</p>
         </div>
       </div>
     </section>

@@ -73,7 +73,8 @@
   background: linear-gradient(135deg, #000000 40%, #222222 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18)); /* Bold premium text shadow */
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
+  /* Bold premium text shadow */
 }
 
 .hero-name .letter.outline {
@@ -88,7 +89,8 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   -webkit-text-stroke: 0px;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18)); /* Same solid black drop shadow as ABHINAV */
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
+  /* Same solid black drop shadow as ABHINAV */
 }
 
 .hero-name .letter:hover {
@@ -164,7 +166,7 @@
   object-fit: cover;
 }
 
-/* 3D TECHNOLOGY CUBE PANEL */
+/* 3D TECHNOLOGY CARD DECK PANEL */
 .hero-cube-block {
   display: flex;
   flex-direction: column;
@@ -172,141 +174,262 @@
   justify-content: center;
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 520px;
 }
 
-.cube-viewport {
-  width: 320px;
-  height: 320px;
+.deck-viewport {
+  width: 720px;
+  height: 490px;
   perspective: 1200px;
   display: flex;
   justify-content: center;
   align-items: center;
-  animation: cube-float 6s infinite alternate ease-in-out;
   will-change: transform;
-}
-
-.cube-box {
-  width: 200px;
-  height: 200px;
-  position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.deck-box {
+  width: 400px;
+  height: 400px;
+  position: relative;
+  border-radius: 30%;
+  transform-style: preserve-3d;
   will-change: transform;
 }
 
-.cube-face {
+.tech-card {
   position: absolute;
-  width: 200px;
-  height: 200px;
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid var(--border-color);
-  border-radius: 20px;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  /* Solid pitch black background like the terminal card */
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 32px;
+  /* Tighter rounded corners matching the image cards */
   display: flex;
-  align-items: center;
-  justify-content: center;
-  backface-visibility: visible;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.5);
+  /* Deep, soft, highly diffused floating drop shadow */
+  backface-visibility: hidden;
+  overflow: hidden;
   transition: border-color 0.4s var(--transition-smooth),
     box-shadow 0.4s var(--transition-smooth),
     background 0.4s var(--transition-smooth);
 }
 
-/* 6-Sided Orthogonal Translations */
-.face-front {
-  transform: rotateY(0deg) translateZ(100px);
+/* Sci-fi Dot Grid Backdrop */
+.card-dots-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 16px 16px;
+  pointer-events: none;
+  z-index: 1;
 }
 
-.face-back {
-  transform: rotateY(180deg) translateZ(100px);
+[data-theme="light"] .card-dots-bg {
+  background-image: radial-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px);
 }
 
-.face-left {
-  transform: rotateY(-90deg) translateZ(100px);
+/* Cybernetic Corner Brackets */
+.card-corner {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  z-index: 2;
+  transition: border-color 0.4s ease;
 }
 
-.face-right {
-  transform: rotateY(90deg) translateZ(100px);
+.tech-card:hover .card-corner {
+  border-color: var(--card-glow);
 }
 
-.face-top {
-  transform: rotateX(90deg) translateZ(100px);
+[data-theme="light"] .card-corner {
+  border-color: rgba(15, 23, 42, 0.1);
 }
 
-.face-bottom {
-  transform: rotateX(-90deg) translateZ(100px);
+.corner-tl {
+  top: 12px;
+  left: 12px;
+  border-right: none;
+  border-bottom: none;
 }
 
-.face-content {
+.corner-tr {
+  top: 12px;
+  right: 12px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner-bl {
+  bottom: 12px;
+  left: 12px;
+  border-right: none;
+  border-top: none;
+}
+
+.corner-br {
+  bottom: 12px;
+  right: 12px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Holographic Reflective Glare Sweep */
+.card-glare {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  z-index: 3;
+  transform: translateY(-100%) translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.tech-card:hover .card-glare {
+  transform: translateY(100%) translateX(100%);
+}
+
+.tech-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0) 40%, var(--card-glow) 100%);
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.4s ease;
+}
+
+.tech-card:hover::before {
+  opacity: 0.06;
+}
+
+.card-hud-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  z-index: 2;
+}
+
+.card-hud-header .hud-category {
+  color: var(--secondary-color);
+}
+
+.card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  width: 100%;
-  height: 100%;
-  padding: 24px;
+  gap: 20px;
+  flex: 1;
+  z-index: 2;
 }
 
-.face-icon {
-  font-size: 3.8rem;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.15));
-  transition: transform 0.4s var(--transition-smooth);
+.card-icon {
+  font-size: 4.6rem;
+  filter: drop-shadow(0 0 15px var(--card-glow));
+  transition: transform 0.4s var(--ease-elastic);
 }
 
-.face-title {
-  font-size: 0.85rem;
-  font-family: var(--font-title);
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  font-weight: 600;
-  text-transform: uppercase;
+.tech-card:hover .card-icon {
+  transform: scale(1.12);
 }
 
-/* Hover spotlights using CSS custom colors */
-.cube-face:hover {
-  border-color: var(--face-glow);
-  background: rgba(var(--bg-color-rgb), 0.8);
-  box-shadow: 0 0 30px var(--face-glow);
-}
-
-.cube-face:hover .face-icon {
-  transform: scale(1.15) translateZ(10px);
-}
-
-.cube-face:hover .face-title {
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--text-main);
-  text-shadow: 0 0 8px var(--face-glow);
+  letter-spacing: 0.04em;
+  font-family: var(--font-title);
 }
 
-/* Light mode overrides for clean contrast */
-[data-theme="light"] .cube-face {
-  background: rgba(255, 255, 255, 0.6);
-  border-color: rgba(15, 23, 42, 0.08);
+.card-hud-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.68rem;
+  color: var(--text-dark);
+  letter-spacing: 0.15em;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding-top: 12px;
+  z-index: 2;
 }
 
-[data-theme="light"] .cube-face:hover {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: var(--face-glow);
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06), 0 0 20px var(--face-glow);
+.card-hud-footer .hud-sig {
+  color: var(--secondary-color);
+  opacity: 0.8;
 }
 
-/* Floating shadow beneath the cube */
-.cube-shadow {
+/* Hover highlights using dynamic CSS variable values */
+.tech-card:hover {
+  border-color: var(--card-glow);
+  box-shadow: 0 35px 70px rgba(0, 0, 0, 0.65), 0 0 25px var(--card-glow);
+}
+
+/* Light mode overrides - styled to look exactly like the clean floating white cards */
+[data-theme="light"] .tech-card {
+  background: #ffffff;
+  /* Solid pure white card backdrop */
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.07);
+  /* High-diffusion light shadow */
+}
+
+[data-theme="light"] .tech-card:hover {
+  background: #ffffff;
+  border-color: var(--card-glow);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.11), 0 0 20px var(--card-glow);
+}
+
+[data-theme="light"] .card-title {
+  color: #0f172a;
+  /* Slate 900 dark text for bold clean visual contrast */
+}
+
+[data-theme="light"] .card-hud-header {
+  color: #64748b;
+  /* Slate 500 secondary text */
+}
+
+[data-theme="light"] .card-hud-footer {
+  border-top-color: rgba(0, 0, 0, 0.06);
+  color: #64748b;
+  /* Slate 500 secondary text */
+}
+
+/* Floating shadow beneath the deck */
+.deck-shadow {
   position: absolute;
-  bottom: 0px;
-  width: 160px;
+  bottom: -10px;
+  width: 210px;
   height: 16px;
-  background: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.18) 0%, transparent 70%);
   border-radius: 50%;
-  filter: blur(6px);
-  animation: shadow-scale 6s infinite alternate ease-in-out;
+  filter: blur(8px);
   pointer-events: none;
 }
 
-[data-theme="light"] .cube-shadow {
-  background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.1) 0%, transparent 70%);
+[data-theme="light"] .deck-shadow {
+  background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.08) 0%, transparent 70%);
 }
 
 /* CSS Keyframe Animations */
@@ -329,6 +452,20 @@
   100% {
     transform: scale(0.85);
     opacity: 0.35;
+  }
+}
+
+@keyframes cube-spin {
+  0% {
+    transform: rotateX(-15deg) rotateY(30deg) rotateZ(0deg);
+  }
+
+  50% {
+    transform: rotateX(165deg) rotateY(210deg) rotateZ(180deg);
+  }
+
+  100% {
+    transform: rotateX(345deg) rotateY(390deg) rotateZ(360deg);
   }
 }
 
@@ -398,42 +535,35 @@
 
   .hero-cube-block {
     order: 2;
-    height: 320px;
+    height: 380px;
   }
 
-  .cube-viewport {
+  .deck-viewport {
     width: 260px;
-    height: 260px;
+    height: 330px;
   }
 
-  .cube-box {
+  .deck-box {
+    width: 230px;
+    height: 280px;
+  }
+
+  .tech-card {
+    border-radius: 16px;
+    padding: 18px;
+  }
+
+  .card-icon {
+    font-size: 3.6rem;
+  }
+
+  .card-title {
+    font-size: 1.05rem;
+  }
+
+  .deck-shadow {
+    bottom: -15px;
     width: 160px;
-    height: 160px;
-  }
-
-  /* Reset translations for smaller cube scale */
-  .face-front {
-    transform: rotateY(0deg) translateZ(80px);
-  }
-
-  .face-back {
-    transform: rotateY(180deg) translateZ(80px);
-  }
-
-  .face-left {
-    transform: rotateY(-90deg) translateZ(80px);
-  }
-
-  .face-right {
-    transform: rotateY(90deg) translateZ(80px);
-  }
-
-  .face-top {
-    transform: rotateX(90deg) translateZ(80px);
-  }
-
-  .face-bottom {
-    transform: rotateX(-90deg) translateZ(80px);
   }
 }
 

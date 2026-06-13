@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGithub, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 import Magnetic from '../../components/Magnetic/Magnetic';
-import indictImage from '../../assets/indict_project.png';
-import fuxionxImage from '../../assets/fuxionx_project.png';
 import './Projects.css';
 
 
@@ -35,7 +33,7 @@ const projects = [
 
     github: 'https://github.com/abhinavDir/Indict-frontend',
 
-    image: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    image: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=600&auto=format&fit=crop&q=50&ixlib=rb-4.0.3',
     gridClass: 'bento-large',
 
     features: [
@@ -71,7 +69,7 @@ const projects = [
 
     github: '#',
 
-    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=50&ixlib=rb-4.0.3',
     gridClass: 'bento-large',
 
     features: [
@@ -108,7 +106,7 @@ const projects = [
 
     github: '#',
 
-    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&auto=format&fit=crop&q=50&ixlib=rb-4.0.3',
 
     gridClass: 'bento-medium',
 
@@ -142,7 +140,7 @@ const projects = [
 
     github: '#',
 
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&auto=format&fit=crop&q=50&ixlib=rb-4.0.3',
     gridClass: 'bento-medium',
 
     features: [
@@ -177,7 +175,7 @@ const projects = [
 
     github: '#',
 
-    image: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    image: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?w=600&auto=format&fit=crop&q=50&ixlib=rb-4.0.3',
 
     gridClass: 'bento-wide',
 
@@ -197,7 +195,7 @@ const Projects = () => {
   const handleMouseMove = (e, id) => {
     const card = document.getElementById(`project-${id}`);
     if (!card) return;
-    const { left, top, width, height } = card.getBoundingClientRect();
+    const { left, top } = card.getBoundingClientRect();
     const x = e.clientX - left;
     const y = e.clientY - top;
 

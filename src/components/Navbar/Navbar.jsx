@@ -16,35 +16,55 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  // Always start in light mode on every page load
-  const [theme, setTheme] = useState('light');
+  // Always start in dark mode on every page load
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
-    const handleScroll = () => {
-      // Background styling trigger
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-
-      // Track active section based on scroll offsets
-      const scrollPosition = window.scrollY + window.innerHeight / 3;
-
-      for (const item of navItems) {
-        const el = document.getElementById(item.id);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(item.id);
-          }
-        }
+    // 1. Throttled scroll listener for navbar background styling (passive listener)
+    let scrollTimeout;
+    const handleScrollBg = () => {
+      if (!scrollTimeout) {
+        scrollTimeout = setTimeout(() => {
+          setIsScrolled(window.scrollY > 50);
+          scrollTimeout = null;
+        }, 100); // updates background style at most once every 100ms
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScrollBg, { passive: true });
+
+    // 2. IntersectionObserver for tracking active section without layout thrashing
+    const observerOptions = {
+      root: null,
+      rootMargin: '-30% 0px -60% 0px', // triggers when the section occupies the viewport center
+      threshold: 0,
+    };
+
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    // Observe each section element
+    navItems.forEach((item) => {
+      const el = document.getElementById(item.id);
+      if (el) {
+        observer.observe(el);
+      }
+    });
+
+    return () => {
+      window.removeEventListener('scroll', handleScrollBg);
+      observer.disconnect();
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+    };
   }, []);
 
   useEffect(() => {

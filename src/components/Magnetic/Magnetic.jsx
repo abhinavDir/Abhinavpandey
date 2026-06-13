@@ -1,15 +1,34 @@
-import React, { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 const Magnetic = ({ children, range = 0.35, strength = 0.35 }) => {
   const ref = useRef(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const boundsRef = useRef(null);
+
+  // Set up motion values to update transforms directly in DOM with zero React re-renders
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  // Bind custom spring physics configurations
+  const springConfig = { stiffness: 150, damping: 15, mass: 0.1 };
+  const springX = useSpring(x, springConfig);
+  const springY = useSpring(y, springConfig);
+
+  const handleMouseEnter = () => {
+    if (ref.current) {
+      // Cache element bounding box on hover start to avoid coordinates shift feedback loops
+      boundsRef.current = ref.current.getBoundingClientRect();
+    }
+  };
 
   const handleMouseMove = (e) => {
-    if (!ref.current) return;
+    if (!boundsRef.current) {
+      if (ref.current) boundsRef.current = ref.current.getBoundingClientRect();
+      else return;
+    }
     
     const { clientX, clientY } = e;
-    const { left, top, width, height } = ref.current.getBoundingClientRect();
+    const { left, top, width, height } = boundsRef.current;
     
     // Center point of the element
     const centerX = left + width / 2;
@@ -19,26 +38,25 @@ const Magnetic = ({ children, range = 0.35, strength = 0.35 }) => {
     const distanceX = clientX - centerX;
     const distanceY = clientY - centerY;
     
-    // Apply pull physics based on range and strength
-    const magneticX = distanceX * strength;
-    const magneticY = distanceY * strength;
-    
-    setPosition({ x: magneticX, y: magneticY });
+    // Apply pull physics directly into motion values
+    x.set(distanceX * strength);
+    y.set(distanceY * strength);
   };
 
   const handleMouseLeave = () => {
-    setPosition({ x: 0, y: 0 });
+    x.set(0);
+    y.set(0);
+    boundsRef.current = null;
   };
 
   return (
     <motion.div
       ref={ref}
+      onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      animate={{ x: position.x, y: position.y }}
-      transition={{ type: 'spring', stiffness: 150, damping: 15, mass: 0.1 }}
       className="magnetic-wrapper"
-      style={{ display: 'inline-block' }}
+      style={{ display: 'inline-block', x: springX, y: springY }}
     >
       {children}
     </motion.div>
