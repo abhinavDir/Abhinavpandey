@@ -33,7 +33,7 @@ const projects = [
 
     link: 'https://indict-frontend.vercel.app/',
 
-    github: 'https://github.com/SalesforceAIResearch/indict_code_gen',
+    github: 'https://github.com/abhinavDir/Indict-frontend',
 
     image: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
     gridClass: 'bento-large',
