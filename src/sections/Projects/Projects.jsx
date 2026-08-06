@@ -31,7 +31,7 @@ const projects = [
 
     link: 'https://indict-frontend.vercel.app/',
 
-    github: 'https://github.com/abhinavDir/Indict-frontend',
+    github: '#',
 
     image: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=600&auto=format&fit=crop&q=50&ixlib=rb-4.0.3',
     gridClass: 'bento-large',
